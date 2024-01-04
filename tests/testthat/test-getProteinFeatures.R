@@ -1,10 +1,28 @@
-test_that("Only strings are accepted for UniProt IDs", {
-  expect_null(accessUniprot(NULL))
-  expect_null(accessUniprot(4))
-  expect_null(accessUniprot(3.14))
+test_that("Only strings are accepted as input", {
+  expect_error(getProteinFeatures(NULL))
+  expect_error(getProteinFeatures(4))
+  expect_error(getProteinFeatures(3.14))
 })
 
-test_that("Warning is raised if UniProt ID is incorrect", {
-  expect_null(accessUniprot("Hello"))
-  expect_null(accessUniprot("A00000"))
+test_that("Dataframe is returned if successul", {
+  expect_s3_class(getProteinFeatures("P55087"), "data.frame")
+})
+
+
+test_that("Only a list is accepted as input", {
+  expect_no_error(createUniprotDataFrame(data.frame()))
+  expect_error(createUniprotDataFrame(2))
+  expect_error(getProteinSequence(2))
+})
+
+
+test_that("Protein sequence has to be a string", {
+  expect_error(getProteinSequence(data.frame()))
+})
+
+
+test_that("Invalid URL throws error", {
+  expect_error(accessUniprot("NotValid"))
+  expect_error(accessPredictProtein("NotValid"))
+
 })
