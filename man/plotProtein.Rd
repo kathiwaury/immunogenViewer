@@ -2,13 +2,23 @@
 % Please edit documentation in R/plotProtein.R
 \name{plotProtein}
 \alias{plotProtein}
-\title{Title}
+\title{Plot protein features with immunogens highlighted}
 \usage{
 plotProtein(proteinDF)
 }
 \arguments{
-\item{proteinDF}{}
+\item{proteinDF}{Protein DataFrame created by call to getProteinFeatures()}
+}
+\value{
+A ggplot object
 }
 \description{
-Title
+A call to `plotProtein()` visualized all relevant protein features within one figure along
+the entire protein sequence. All immunogen associated with the protein are highlighted at their
+position along the protein sequence by darkred boxes.
+}
+\examples{
+proteinDF <- getProteinFeatures("P55087")
+proteinDF <- addImmunogen(proteinDF, 10, 30, "A12")
+plotProtein(proteinDF)
 }

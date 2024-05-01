@@ -1,0 +1,141 @@
+---
+title: "Using immunogenViewer to evaluate and choose antibodies"
+author:
+- name: Katharina Waury
+  affiliation: Vrije Universiteit Amsterdam, Amsterdam, The Netherlands
+output:
+  BiocStyle::html_document:
+    toc_float: true
+  BiocStyle::pdf_document: default
+bibliography: immunogenViewer.bib
+vignette: >
+  %\VignetteIndexEntry{Using immunogenViewer to evaluate and choose antibodies}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r options, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  message=FALSE, 
+  warning=FALSE
+)
+```
+
+# Introduction
+
+The package `immunogenViewer` is meant to support researchers in comparing and choosing suitable antibodies provided that information on the immunogen used to raise the antibody is available. When the immunogen of an antibody is known, its binding site within the protein antigen is defined and can be examined in detail. As antibodies raised against peptide immunogens often do not function properly when used to detect natively folded proteins [@Brown2011], examination of the position of the immunogen within the full-length protein can provide insights. Using `immunogenViewer` provides an easy approach to visualize, evaluate and compare immunogens within the full-length sequence of a protein. Information on structural and functional annotations of the immunogen and thus antibody binding site can tell the user if an antibody is potentially useful for native protein detection [@Trier2012; @Waury2022].
+
+Specifically, `immunogenViewer` can be used to retrieve protein features for a protein of interest using an API call to the [UniProtKB](https://www.uniprot.org/) [@Uniprot2022] and [PredictProtein](https://predictprotein.org/) [@Bernhofer2021] databases. The features are saved on a per-residue level in a dataframe. One or several immunogens can be associated with the protein. The immunogen(s) can then be visualized and evaluated regarding their structure and other annotations that can influence successful antibody recognition within the full-length protein. A summary report of the immunogen can be created to easily compare and select favorable immunogens and their respective antibodies. This package should be used as a pre-selection step to exclude unsuitable antibodies early on. It does not replace comprehensive antibody validation. For more information on validation, please refer to other excellent resources [@Roncador2015; @Voskuil2020].
+
+# Installation 
+
+The package can be installed directly from Bioconductor.
+
+```{r installation, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("immunogenViewer")
+```
+
+```{r load}
+library(immunogenViewer)
+```
+
+# User guide
+
+## Retrieving the protein features
+
+To retrieve the features for the protein of interest the correct UniProt ID (also known as accession number) is required. If the UniProt ID is not known yet, one can search the [UniProtKB](https://www.uniprot.org/) using the gene or protein name. Be sure to select the UniProt ID of the correct organism and preferable search within reviewed SwissProt entries instead of unreviewed TrEMBL entries. Our example protein is the human protein TREM2 (UniProt ID: [Q9NZC2](https://www.uniprot.org/uniprotkb/Q9NZC2/entry)). Using `getProteinFeatures()` relevant features from UniProt and PredictProtein are retrieved. To see how the dataframe is structured, we will look at the returned dataframe. 
+
+
+```{r get-features}
+protein <- getProteinFeatures("Q9NZC2")
+
+# check dataframe
+DT::datatable(protein, width = "80%", options = list(scrollX = TRUE))
+```
+
+## Adding immunogens to the protein dataframe
+
+After creating the protein dataframe using `getProteinFeatures()` immunogens to be visualized and evaluated can be added to the dataframe. For this purpose, we use `addImmunogen()`. With every call to the function one immunogen can be added to the protein dataframe. Besides the protein dataframe, we need to define the immunogen to be added by supplying the start and end position of the immunogen and a name.
+
+Searching antibody database Antibodypedia, three antibodies are identified that were raised against known immunogens peptide. These immunogens are added to the dataframe by defining their start and end position or the immunogen peptide sequence within the full protein sequence and naming them after their catalog identifiers. Each immunogen is added as an additional column to the protein dataframe, the immunogen name is used as the column name.
+
+```{r add-immunogens}
+protein <- addImmunogen(protein, start = 142, end = 192, name = "ABIN2783734_")
+protein <- addImmunogen(protein, start = 196, end = 230, name = "HPA010917")
+protein <- addImmunogen(protein, seq = "HGQKPGTHPPSELD", name = "EB07921")
+
+# check that immunogens were added as columns
+colnames(protein)
+```
+
+
+### Renaming an immunogen
+
+Already added immunogens can be renamed using `renameImmunogen()` if the provided start and end position are correct but the name should be updated. This way a typo can be corrected or a more informative name added instead of re-adding the immunogen. The column name in the protein dataframe is then updated.
+
+```{r rename-immunogen}
+protein <- renameImmunogen(protein, oldName = "ABIN2783734_", newName = "ABIN2783734")
+
+# check that immunogen name was updated
+colnames(protein)
+```
+
+
+### Removing an immunogen
+
+A previously added immunogen can be removed from the protein dataframe using `removeImmunogen()`. The corresponding column is dropped from the protein dataframe.
+
+```{r remove-immunogen}
+protein <- removeImmunogen(protein, name = "HPA010917")
+
+# check that immunogen was removed
+colnames(protein)
+```
+
+## Visualizing the protein with the immunogens highlighted
+
+After retrieval of the protein features and adding the relevant immunogens correctly, the full protein sequence can be plotted with the features and the immunogens annotated along the sequence. The plot allows to understand the position of the immunogen peptide within the full-length sequence as well as identify relevant obstacles within the protein that might hinder or limit successful antibody binding. 
+
+```{r visualize_protein, fig.fullwidth=TRUE, fig.width=10, fig.height=10, out.width = "100%"}
+plotProtein(protein)
+```
+
+## Visualizing a specific immunogen
+
+If interested in one specific immunogen, one can visualize the relevant part of the protein sequence. In this plot the amino acid sequence of the immunogen is shown along the x axis while the same features as in the protein plot are included. 
+
+```{r visualize_immunogen, fig.fullwidth=TRUE, fig.width=10, fig.height=10, out.width = "100%"}
+plotImmunogen(protein, "ABIN2783734")
+```
+
+## Evaluating the immunogens
+
+Apart from visualizing specific immunogens, it is also possible to summarize the protein features within a specific immunogen. This can either be done for an immunogen of interest or for all immunogens added to a protein dataframe at once. The output is a summary dataframe that can be sorted by the feature columns. By sorting the most suitable immunogen, e.g., with the highest fraction of exposed residues, can be selected.
+
+```{r evaluate}
+immunogens <- evaluateImmunogen(protein)
+
+DT::datatable(immunogens, width = "80%", options = list(scrollX = TRUE))
+```
+
+# Important Notes
+
+* The length of an immunogen has to be between 10 and 50 amino acids. 
+* The secondary structure "Other" usually stand for coil structures.
+    
+# References {.unnumbered}
+
+
+
+# Session info
+
+```{r sessioninfo}
+sessionInfo()
+```
+
+

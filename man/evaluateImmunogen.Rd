@@ -2,13 +2,28 @@
 % Please edit documentation in R/evaluateImmunogen.R
 \name{evaluateImmunogen}
 \alias{evaluateImmunogen}
-\title{Title}
+\title{Create a summary DataFrame of the structural and functional properties of an immunogen}
 \usage{
-evaluateImmunogen(proteinDF, immunogen)
+evaluateImmunogen(proteinDF, immunogen = NULL)
 }
 \arguments{
-\item{immunogen}{}
+\item{proteinDF}{Protein DataFrame created by call to getProteinFeatures()}
+
+\item{immunogen}{String, identifier name of immunogen (if not defined, all immunogens are evaluated)}
+}
+\value{
+Summary DataFrame providing statistics on immunogen
 }
 \description{
-Title
+By calling `evaluateImmunogen()` the immunogens associated with a Protein DataFrame can be evaluated regarding
+their suitability fir antibody binding in natively folded proteins. By calling the function without specifying
+an immunogen all immunogens of the current protein will be evaluated. The summary DataFrame contains one row per
+evaluated immunogen.
+}
+\examples{
+proteinDF <- getProteinFeatures("P55087")
+proteinDF <- addImmunogen(proteinDF, 10, 30, "A12")
+proteinDF <- addImmunogen(proteinDF, seq="RFKEAFSKAAQQTKGSYMEVEDNRSQVETDD", name="HPA")
+evaluateImmunogen(proteinDF, "A12")
+evaluateImmunogen(proteinDF)
 }

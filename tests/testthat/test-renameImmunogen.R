@@ -1,6 +1,6 @@
 library(immunogenViewer)
 exampleDF <- immunogenViewer::getProteinFeatures("P55087")
-exampleDF <- immunogenViewer::addImmunogen(exampleDF, 10, 30, "A12")
+exampleDF <- immunogenViewer::addImmunogen(exampleDF, start=10, end=30, name="A12")
 colNames <- colnames(exampleDF)
 
 test_that("Dataframe is returned if successul", {

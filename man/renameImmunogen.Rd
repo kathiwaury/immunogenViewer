@@ -2,13 +2,25 @@
 % Please edit documentation in R/renameImmunogen.R
 \name{renameImmunogen}
 \alias{renameImmunogen}
-\title{Title}
+\title{Rename an existing immunogen}
 \usage{
 renameImmunogen(proteinDF, oldName, newName)
 }
 \arguments{
-\item{newName}{}
+\item{proteinDF}{Protein DataFrame created by call to getProteinFeatures()}
+
+\item{oldName}{String, current name of immunogen}
+
+\item{newName}{String, new name of immunogen}
+}
+\value{
+Updated Protein DataFrame with immunogen column renamed
 }
 \description{
-Title
+An existing immunogen is renamed in a Protein DataFrame by calling `renameImmunogen()`.
+}
+\examples{
+proteinDF <- getProteinFeatures("P55087")
+proteinDF <- addImmunogen(proteinDF, 10, 30, "A12")
+proteinDF <- renameImmunogen(proteinDF, "A12", "B12")
 }

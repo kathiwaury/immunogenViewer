@@ -2,13 +2,32 @@
 % Please edit documentation in R/addImmunogen.R
 \name{addImmunogen}
 \alias{addImmunogen}
-\title{Title}
+\title{Add an immunogen to the Protein DataFrame}
 \usage{
-addImmunogen(proteinDF, start, end, name)
+addImmunogen(proteinDF, start = NULL, end = NULL, seq = NULL, name)
 }
 \arguments{
-\item{name}{}
+\item{proteinDF}{Protein DataFrame created by call to getProteinFeatures()}
+
+\item{start}{Integer, start position of immunogen}
+
+\item{end}{Integer, end position of immunogen}
+
+\item{seq}{String, immunogen amino acid sequence (must be substring of protein sequence)}
+
+\item{name}{String, chosen name to identify immunogen}
+}
+\value{
+Updated Protein DataFrame with immunogen added as a new column
 }
 \description{
-Title
+An immunogen is associated with a protein by adding a column to a Protein DataFrame.
+The immunogen is specified by a unique name. Its position is defined by either the start
+and end position within the protein sequence or by supplying the immunogen sequence which
+must be a substring of the protein's sequence.
+}
+\examples{
+proteinDF <- getProteinFeatures("P55087")
+proteinDF <- addImmunogen(proteinDF, start=10, end=30, name="A12")
+proteinDF <- addImmunogen(proteinDF, seq="RFKEAFSKAAQQTKGSYMEVEDNRSQVETDD", name="HPA")
 }

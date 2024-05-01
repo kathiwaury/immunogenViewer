@@ -2,13 +2,23 @@
 % Please edit documentation in R/removeImmunogen.R
 \name{removeImmunogen}
 \alias{removeImmunogen}
-\title{Title}
+\title{Remove an existing immunogen}
 \usage{
 removeImmunogen(proteinDF, name)
 }
 \arguments{
-\item{name}{}
+\item{proteinDF}{Protein DataFrame created by call to getProteinFeatures()}
+
+\item{name}{String, name of immunogen}
+}
+\value{
+Updated Protein DataFrame with immunogen column removed
 }
 \description{
-Title
+An existing immunogen is removed from a Protein DataFrame by calling `removeImmunogen()`.
+}
+\examples{
+proteinDF <- getProteinFeatures("P55087")
+proteinDF <- addImmunogen(proteinDF, 10, 30, "A12")
+proteinDF <- removeImmunogen(proteinDF, "A12")
 }

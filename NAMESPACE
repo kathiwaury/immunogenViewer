@@ -3,6 +3,7 @@
 export(addImmunogen)
 export(evaluateImmunogen)
 export(getProteinFeatures)
+export(plotImmunogen)
 export(plotProtein)
 export(removeImmunogen)
 export(renameImmunogen)

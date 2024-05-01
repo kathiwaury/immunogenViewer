@@ -2,13 +2,23 @@
 % Please edit documentation in R/getProteinFeatures.R
 \name{getProteinFeatures}
 \alias{getProteinFeatures}
-\title{Title}
+\title{Retrieve structural and functional features to create a protein DataFrame}
 \usage{
 getProteinFeatures(uniprot)
 }
 \arguments{
-\item{uniprot}{}
+\item{uniprot}{String, UniProt ID}
+}
+\value{
+Protein DataFrame
 }
 \description{
-Title
+By providing a valid UniProt ID, information from UniProt and PredictProtein is queried via their
+respective APIs. The retrieved information regarding secondary structure, solvent accessibility, membrane
+regions, protein-binding regions, disordered regions, PTMs and disulfide bridges is saved per residue
+within a Protein DataFrame. After calling `getProteinFeatures()`, immunogens can be added to the Protein
+DataFrame.
+}
+\examples{
+getProteinFeatures("P55087")
 }

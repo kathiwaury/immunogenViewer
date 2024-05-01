@@ -1,16 +1,21 @@
 Package: immunogenViewer
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Visualization and evaluation of protein immunogens
 Version: 0.1.0
 Author: Katharina Waury
-Maintainer: Katharina Waury <k.waury@vu.nl>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Maintainer: Katharina Waury <kathiwaury@gmail.com>
+Description: Plots protein properties and visualizes position of peptide immunogens within protein sequence.
+    Allows evaluation of immunogens based on structural and functional annotations to infer 
+    suitability for antibody-based methods aiming to detect native proteins.
 License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
 Suggests: 
-    testthat (>= 3.0.0)
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    DT,
+    BiocStyle
 Config/testthat/edition: 3
 Imports: 
     ggplot2,
@@ -19,4 +24,5 @@ Imports:
     patchwork
 Depends: 
     R (>= 2.10)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
+VignetteBuilder: knitr

@@ -1,31 +1,31 @@
-#' Title
+#' Rename an existing immunogen
 #'
-#' @param proteinDF
-#' @param oldName
-#' @param newName
+#' @param proteinDF Protein DataFrame created by call to getProteinFeatures()
+#' @param oldName String, current name of immunogen
+#' @param newName String, new name of immunogen
 #'
-#' @return
+#' @return Updated Protein DataFrame with immunogen column renamed
 #' @export
 #'
+#' @description
+#' An existing immunogen is renamed in a Protein DataFrame by calling `renameImmunogen()`.
+#'
 #' @examples
+#' proteinDF <- getProteinFeatures("P55087")
+#' proteinDF <- addImmunogen(proteinDF, 10, 30, "A12")
+#' proteinDF <- renameImmunogen(proteinDF, "A12", "B12")
 renameImmunogen <- function(proteinDF, oldName, newName) {
 
-  colnamesDF <- colnames(proteinDF)
+  # check for valid old immunogen names
+  if (checkIfImmunogenExists(colnames(proteinDF), oldName)) {
 
-  if (checkIfImmunogenExists(colnamesDF, oldName)) {
+    # check validity of new immunogen name
+    colName <- checkImmunogenName(newName, colnames(proteinDF))
+
+    # update column name
     names(proteinDF)[names(proteinDF) == oldName] <- newName
+
     print(paste0("Successfully updated immunogen name '", oldName, "' to '", newName, "'"))
     return(proteinDF)
   }
-}
-
-
-checkIfImmunogenExists <- function(colnamesDF, oldName) {
-
-  if (oldName %in% colnamesDF) {
-    return(TRUE)
-  } else {
-    stop("Immunogen not found in dataframe.")
-  }
-
 }

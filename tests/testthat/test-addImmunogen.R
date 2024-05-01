@@ -4,7 +4,15 @@ colNames <- colnames(exampleDF)
 
 
 test_that("Dataframe is returned if successul", {
-  expect_s3_class(addImmunogen(exampleDF, 10, 30, "A12"), "data.frame")
+  expect_s3_class(addImmunogen(exampleDF, start=10, end=30, name="A12"), "data.frame")
+  expect_s3_class(addImmunogen(exampleDF, seq="RFKEAFSKAAQQTKGSYMEVEDNRSQVETDDLILKPGVVH", name="HPA"), "data.frame")
+})
+
+test_that("Invalid or missing sequence raises error", {
+  expect_error(addImmunogen(exampleDF, seq="MFKEAFSKAAQQTKGSYMEVEDNRSQVEHDDLILKPGVPH", name="HPA"),
+               "Immunogen sequence not found in the protein sequence.")
+  expect_error(addImmunogen(exampleDF, name="A12"),
+               "Either provide the immunogen sequence or start and end positions.")
 })
 
 test_that("Wrong immunogen range raises errors", {
@@ -18,7 +26,7 @@ test_that("Wrong immunogen range raises errors", {
 
 test_that("Invalid immunogen name raises errors", {
   expect_error(checkImmunogenName("PTM", colNames),
-      "Immunogen name cannot be same as existing feature or immunogen column names.")
+      "Immunogen name cannot be same as existing features or immunogen column names.")
   expect_warning(checkImmunogenName(mean, colNames),
       "Unable to convert provided immunogen name to character. Using default name 'Immunogen' instead.")
   expect_warning(checkImmunogenName(NULL, colNames),
