@@ -12,7 +12,7 @@
 #'
 #' @examples
 #' proteinDF <- getProteinFeatures("P55087")
-#' proteinDF <- addImmunogen(proteinDF, 10, 30, "A12")
+#' proteinDF <- addImmunogen(proteinDF, start=10, end=30, "A12")
 #' proteinDF <- renameImmunogen(proteinDF, "A12", "B12")
 renameImmunogen <- function(proteinDF, oldName, newName) {
 

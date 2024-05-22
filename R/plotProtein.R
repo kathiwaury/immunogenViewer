@@ -3,8 +3,8 @@
 #' @param proteinDF Protein DataFrame created by call to getProteinFeatures()
 #'
 #' @description
-#' A call to `plotProtein()` visualized all relevant protein features within one figure along
-#' the entire protein sequence. All immunogen associated with the protein are highlighted at their
+#' A call to `plotProtein()` visualizes all relevant protein features within one figure along
+#' the entire protein sequence. All immunogens associated with the protein are highlighted at their
 #' position along the protein sequence by darkred boxes.
 #'
 #' @return A ggplot object
@@ -15,7 +15,7 @@
 #'
 #' @examples
 #' proteinDF <- getProteinFeatures("P55087")
-#' proteinDF <- addImmunogen(proteinDF, 10, 30, "A12")
+#' proteinDF <- addImmunogen(proteinDF, start=10, end=30, "A12")
 #' plotProtein(proteinDF)
 plotProtein <- function(proteinDF) {
 
