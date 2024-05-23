@@ -1,5 +1,3 @@
-# x <- getProteinFeatures("P55087")
-
 #' Retrieve structural and functional features to create a protein DataFrame
 #'
 #' @param uniprot String, UniProt ID

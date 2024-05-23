@@ -19,6 +19,6 @@ An existing immunogen is removed from a Protein DataFrame by calling `removeImmu
 }
 \examples{
 proteinDF <- getProteinFeatures("P55087")
-proteinDF <- addImmunogen(proteinDF, 10, 30, "A12")
+proteinDF <- addImmunogen(proteinDF, start=10, end=30, name="A12")
 proteinDF <- removeImmunogen(proteinDF, "A12")
 }

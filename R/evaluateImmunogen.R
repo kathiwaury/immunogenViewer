@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' proteinDF <- getProteinFeatures("P55087")
-#' proteinDF <- addImmunogen(proteinDF, start=10, end=30, "A12")
+#' proteinDF <- addImmunogen(proteinDF, start=10, end=30, name="A12")
 #' proteinDF <- addImmunogen(proteinDF, seq="RFKEAFSKAAQQTKGSYMEVEDNRSQVETDD", name="HPA")
 #' evaluateImmunogen(proteinDF, "A12")
 #' evaluateImmunogen(proteinDF)

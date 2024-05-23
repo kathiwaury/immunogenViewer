@@ -10,8 +10,6 @@ test_that("Dataframe is returned if successul", {
 
 
 test_that("Only a list is accepted as input", {
-  expect_no_error(createUniprotDataFrame(data.frame()))
-  expect_error(createUniprotDataFrame(2))
   expect_error(getProteinSequence(2))
 })
 

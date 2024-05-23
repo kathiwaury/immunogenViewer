@@ -21,6 +21,6 @@ An existing immunogen is renamed in a Protein DataFrame by calling `renameImmuno
 }
 \examples{
 proteinDF <- getProteinFeatures("P55087")
-proteinDF <- addImmunogen(proteinDF, 10, 30, "A12")
+proteinDF <- addImmunogen(proteinDF, start=10, end=30, name="A12")
 proteinDF <- renameImmunogen(proteinDF, "A12", "B12")
 }

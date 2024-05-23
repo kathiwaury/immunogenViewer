@@ -13,7 +13,7 @@ getProteinFeatures(uniprot)
 Protein DataFrame
 }
 \description{
-By providing a valid UniProt ID, information from UniProt and PredictProtein is queried via their
+By providing a valid UniProt ID, information from UniProt (https://www.uniprot.org/) and PredictProtein (https://predictprotein.org/) is queried via their
 respective APIs. The retrieved information regarding secondary structure, solvent accessibility, membrane
 regions, protein-binding regions, disordered regions, PTMs and disulfide bridges is saved per residue
 within a Protein DataFrame. After calling `getProteinFeatures()`, immunogens can be added to the Protein

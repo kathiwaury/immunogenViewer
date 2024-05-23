@@ -74,7 +74,7 @@ checkImmunogenName <- function(name, colNamesDF) {
 
   if (length(name) == 0) {
     warning("Unable to convert provided immunogen name to character. Using default name 'Immunogen' instead.")
-    colName <- "Immunogen"
+    return("Immunogen")
   }
 
   # compare to existing column names

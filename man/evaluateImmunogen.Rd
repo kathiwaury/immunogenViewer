@@ -15,14 +15,14 @@ evaluateImmunogen(proteinDF, immunogen = NULL)
 Summary DataFrame providing statistics on immunogen
 }
 \description{
-By calling `evaluateImmunogen()` the immunogens associated with a Protein DataFrame can be evaluated regarding
+By calling `evaluateImmunogen()`, the immunogens associated with a Protein DataFrame can be evaluated regarding
 their suitability fir antibody binding in natively folded proteins. By calling the function without specifying
-an immunogen all immunogens of the current protein will be evaluated. The summary DataFrame contains one row per
+an immunogen, all immunogens of the current protein will be evaluated. The summary DataFrame contains one row per
 evaluated immunogen.
 }
 \examples{
 proteinDF <- getProteinFeatures("P55087")
-proteinDF <- addImmunogen(proteinDF, 10, 30, "A12")
+proteinDF <- addImmunogen(proteinDF, start=10, end=30, name="A12")
 proteinDF <- addImmunogen(proteinDF, seq="RFKEAFSKAAQQTKGSYMEVEDNRSQVETDD", name="HPA")
 evaluateImmunogen(proteinDF, "A12")
 evaluateImmunogen(proteinDF)
