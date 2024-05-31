@@ -48,7 +48,7 @@ library(immunogenViewer)
 
 ## Retrieving the protein features
 
-To retrieve the features for the protein of interest the correct UniProt ID (also known as accession number) is required. If the UniProt ID is not known yet, one can search the [UniProtKB](https://www.uniprot.org/) using the gene or protein name. Be sure to select the UniProt ID of the correct organism and preferable search within reviewed SwissProt entries instead of unreviewed TrEMBL entries. Our example protein is the human protein TREM2 (UniProt ID: [Q9NZC2](https://www.uniprot.org/uniprotkb/Q9NZC2/entry)). Using `getProteinFeatures()` relevant features from UniProt and PredictProtein are retrieved. To see how the dataframe is structured, we will look at the returned dataframe. 
+To retrieve the features for the protein of interest the correct UniProt ID (also known as accession number) is required. If the UniProt ID is not known yet, one can search the [UniProtKB](https://www.uniprot.org/) using the gene or protein name. Be sure to select the UniProt ID of the correct organism and preferable search within reviewed SwissProt entries instead of unreviewed TrEMBL entries. Our example protein is the human protein TREM2 (UniProt ID: [Q9NZC2](https://www.uniprot.org/uniprotkb/Q9NZC2/entry)). Using `getProteinFeatures()` relevant features from UniProt and PredictProtein are retrieved. Interaction with UniProt is done using the Bioconductor package [UniProt.ws](https://bioconductor.org/packages/release/bioc/html/UniProt.ws.html). To see how the dataframe is structured, we will look at the returned dataframe. 
 
 
 ```{r get-features}
