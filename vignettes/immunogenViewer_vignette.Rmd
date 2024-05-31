@@ -53,8 +53,7 @@ To retrieve the features for the protein of interest the correct UniProt ID (als
 
 ```{r get-features}
 protein <- getProteinFeatures("Q9NZC2")
-
-# check dataframe
+# check protein dataframe
 DT::datatable(protein, width = "80%", options = list(scrollX = TRUE))
 ```
 
@@ -68,7 +67,6 @@ Searching antibody database Antibodypedia, three antibodies are identified that 
 protein <- addImmunogen(protein, start = 142, end = 192, name = "ABIN2783734_")
 protein <- addImmunogen(protein, start = 196, end = 230, name = "HPA010917")
 protein <- addImmunogen(protein, seq = "HGQKPGTHPPSELD", name = "EB07921")
-
 # check that immunogens were added as columns
 colnames(protein)
 ```
@@ -80,7 +78,6 @@ Already added immunogens can be renamed using `renameImmunogen()` if the provide
 
 ```{r rename-immunogen}
 protein <- renameImmunogen(protein, oldName = "ABIN2783734_", newName = "ABIN2783734")
-
 # check that immunogen name was updated
 colnames(protein)
 ```
@@ -92,7 +89,6 @@ A previously added immunogen can be removed from the protein dataframe using `re
 
 ```{r remove-immunogen}
 protein <- removeImmunogen(protein, name = "HPA010917")
-
 # check that immunogen was removed
 colnames(protein)
 ```
@@ -119,7 +115,7 @@ Apart from visualizing specific immunogens, it is also possible to summarize the
 
 ```{r evaluate}
 immunogens <- evaluateImmunogen(protein)
-
+# check summary dataframe
 DT::datatable(immunogens, width = "80%", options = list(scrollX = TRUE))
 ```
 
@@ -127,9 +123,9 @@ DT::datatable(immunogens, width = "80%", options = list(scrollX = TRUE))
 
 * The length of an immunogen has to be between 10 and 50 amino acids. 
 * The secondary structure "Other" usually stand for coil structures.
+* For the call to `getProteinFeatures()` the taxonomy ID for the protein's species has to be set. The default is human (ID: 9606). If the protein of interest is from a different species, the correct taxonomy ID must be set as a parameter.
     
 # References {.unnumbered}
-
 
 
 # Session info
