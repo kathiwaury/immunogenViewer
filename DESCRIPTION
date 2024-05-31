@@ -8,7 +8,7 @@ Description: Plots protein properties and visualizes position of peptide immunog
     suitability for antibody-based methods aiming to detect native proteins.
 License: Apache License (>= 2)
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Config/testthat/edition: 3
 RoxygenNote: 7.3.1
 VignetteBuilder: knitr
@@ -18,7 +18,8 @@ Imports:
     ggplot2,
     httr,
     jsonlite,
-    patchwork
+    patchwork,
+    UniProt.ws
 Suggests: 
     BiocStyle,
     knitr,

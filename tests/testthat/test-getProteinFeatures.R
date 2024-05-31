@@ -6,6 +6,7 @@ test_that("Only strings are accepted as input", {
 
 test_that("Dataframe is returned if successul", {
   expect_s3_class(getProteinFeatures("P55087"), "data.frame")
+  expect_s3_class(getProteinFeatures("Q9NZC2"), "data.frame")
 })
 
 

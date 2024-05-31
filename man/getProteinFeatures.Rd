@@ -4,7 +4,7 @@
 \alias{getProteinFeatures}
 \title{Retrieve structural and functional features to create a protein DataFrame}
 \usage{
-getProteinFeatures(uniprot)
+getProteinFeatures(uniprot, taxId = 9606)
 }
 \arguments{
 \item{uniprot}{String, UniProt ID}

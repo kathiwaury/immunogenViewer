@@ -1,34 +1,36 @@
 #' Retrieve structural and functional features to create a protein DataFrame
 #'
 #' @param uniprot String, UniProt ID
+#' @param taxId Integer, Taxonomy species ID
 #'
 #' @description
-#' By providing a valid UniProt ID, information from UniProt (https://www.uniprot.org/) and PredictProtein (https://predictprotein.org/) is queried via their
-#' respective APIs. The retrieved information regarding secondary structure, solvent accessibility, membrane
-#' regions, protein-binding regions, disordered regions, PTMs and disulfide bridges is saved per residue
-#' within a Protein DataFrame. After calling `getProteinFeatures()`, immunogens can be added to the Protein
-#' DataFrame.
+#' By providing a valid UniProt ID, information from UniProt (https://www.uniprot.org/) and PredictProtein
+#' (https://predictprotein.org/) is queried via their respective APIs. The retrieved information regarding
+#' secondary structure, solvent accessibility, membrane regions, protein-binding regions, disordered regions,
+#' PTMs and disulfide bridges is saved per residue within a Protein DataFrame.
+#' After calling `getProteinFeatures()`, immunogens can be added to the Protein DataFrame.
 #'
 #' @return Protein DataFrame
 #' @export
 #'
+#' @import UniProt.ws
+#'
 #' @examples getProteinFeatures("P55087")
-getProteinFeatures <- function(uniprot) {
+getProteinFeatures <- function(uniprot, taxId = 9606) {
 
-  # check if Uniprot ID is valid
+  # check if UniProt ID is valid
   if (is.character(uniprot) == FALSE) {
     stop("Please provide a UniProt ID.")
   }
 
   # retrieve results from UniProt
-  resultUniprot <- accessUniprot(uniprot)
-  uniprotDF <- resultUniprot$features
+  uniprotDF <- accessUniprot(uniprot, taxId=9606)
 
   # retrieve results from PredictProtein
   predictProteinDF <- accessPredictProtein(uniprot)
 
   # retrieve protein sequence
-  seq <- getProteinSequence(resultUniprot)
+  seq <- uniprotDF$Sequence
 
   # create feature dataframe
   df <- createFeatureDataFrame(uniprot, seq, uniprotDF, predictProteinDF)
@@ -38,24 +40,16 @@ getProteinFeatures <- function(uniprot) {
 }
 
 
-accessUniprot <- function(uniprot) {
+accessUniprot <- function(uniprot, taxId) {
 
-  # create protein-specific UniProt URL
-  url <- paste0("https://www.uniprot.org/uniprot/", uniprot, ".json")
+  # create UniProt interface
+  up <- UniProt.ws(taxId=taxId)
 
-  # make GET request
-  response <- httr::GET(url = url)
+  # retrieve sequence, PTM and disulfide bridge information
+  result <- select(up, keys=uniprot, columns=c("sequence", "ft_disulfid", "ft_mod_res", "ft_lipid", "ft_carbohyd"),
+    keytype="UniProtKB")
 
-  # check if request was successful
-  if (response$status_code == 200) {
-
-    # parse JSON response
-    result <- jsonlite::fromJSON(httr::content(response, "text", encoding="UTF-8"))
-    return(result)
-
-  } else {
-    stop(c("Error fetching data from Uniprot for ", uniprot))
-  }
+  return(result)
 }
 
 
@@ -77,22 +71,6 @@ accessPredictProtein <- function(uniprot) {
   } else {
     stop(c("Error fetching data from PredictProtein for ", uniprot))
   }
-}
-
-
-getProteinSequence <- function(result) {
-
-  if (is.list(result) == FALSE) {
-    stop("Expected a list.")
-  }
-
-  seq <- as.character(result$sequence$value)
-
-  if (is.character(seq) == FALSE || length(seq) == 0) {
-    stop("Expected a character.")
-  }
-
-  return(seq)
 }
 
 
@@ -127,11 +105,11 @@ createFeatureDataFrame <- function(uniprot, seq, uniprotDF, predictProteinDF) {
   proteinDF <- addPositions(proteinDF, disorderVector, "Disorder")
 
   # PTMs (UniProt)
-  PTMVector <- retrieveSinglePositions(uniprotDF, c("Modified residue", "Lipidation", "Glycosylation"))
+  PTMVector <- retrievePTMPositions(uniprotDF, c("Modified.residue", "Lipidation", "Glycosylation"))
   proteinDF <- addPositions(proteinDF, PTMVector, "PTM")
 
   # disulfide bridges (UniProt)
-  disulfideBridgeVector <- retrieveSinglePositions(uniprotDF, c("Disulfide bond"))
+  disulfideBridgeVector <- retrieveDisulfidePositions(uniprotDF$Disulfide.bond)
   proteinDF <- addPositions(proteinDF, disulfideBridgeVector, "disulfideBridge")
 
   return(proteinDF)
@@ -154,15 +132,66 @@ collectRegionPositions <- function(start, end) {
 }
 
 
-retrieveSinglePositions <- function(uniprotDF, columns) {
+retrieveDisulfidePositions <- function(column) {
 
-  # filter for relevant rows in Uniprot dataframe
-  filteredDF <- uniprotDF[uniprotDF$type %in% columns, ]
+  positions <- numeric()
 
-  # collect all start and end positions of PTM and disulfide bridge annotations
-  singlePositionsVector <- sort(c(filteredDF$location$start$value, filteredDF$location$end$value))
+  annotations <- unlist(strsplit(column, ";"))
 
-  return(singlePositionsVector)
+  for (annot in annotations) {
+
+    if (grepl("\\.\\.", annot)) {
+
+      range <- unlist(strsplit(annot, "\\.\\.")) # escaping the dot character for correct string splitting
+
+      start <- as.integer(gsub("[^0-9-]", "", range[1]))
+      end <- as.integer(range[2])
+
+      positions <- c(positions, start, end)
+
+    } else {
+
+      next
+    }
+  }
+
+  return(sort(positions))
+}
+
+
+retrievePTMPositions <- function(df, columns) {
+
+  positions <- numeric()
+
+  for (column in columns) {
+
+    # skip empty values
+    if (is.na(df[[column]])) {
+
+      next
+
+    } else {
+
+      annotations <- unlist(strsplit(df[[column]], ";"))
+
+      for (annot in annotations) {
+
+        # skip note and evidence strings
+        if (grepl("\\/", annot)) {
+
+          next
+
+        } else {
+
+          position <- as.integer(gsub("[^0-9-]", "", annot))
+          positions <- c(positions, position)
+
+        }
+      }
+    }
+  }
+
+  return(sort(positions))
 }
 
 
