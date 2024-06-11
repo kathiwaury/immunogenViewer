@@ -8,16 +8,18 @@ getProteinFeatures(uniprot, taxId = 9606)
 }
 \arguments{
 \item{uniprot}{String, UniProt ID}
+
+\item{taxId}{Integer, Taxonomy species ID}
 }
 \value{
 Protein DataFrame
 }
 \description{
-By providing a valid UniProt ID, information from UniProt (https://www.uniprot.org/) and PredictProtein (https://predictprotein.org/) is queried via their
-respective APIs. The retrieved information regarding secondary structure, solvent accessibility, membrane
-regions, protein-binding regions, disordered regions, PTMs and disulfide bridges is saved per residue
-within a Protein DataFrame. After calling `getProteinFeatures()`, immunogens can be added to the Protein
-DataFrame.
+By providing a valid UniProt ID, information from UniProt (https://www.uniprot.org/) and PredictProtein
+(https://predictprotein.org/) is queried via their respective APIs. The retrieved information regarding
+secondary structure, solvent accessibility, membrane regions, protein-binding regions, disordered regions,
+PTMs and disulfide bridges is saved per residue within a Protein DataFrame.
+After calling `getProteinFeatures()`, immunogens can be added to the Protein DataFrame.
 }
 \examples{
 getProteinFeatures("P55087")
