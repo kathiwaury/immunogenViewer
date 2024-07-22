@@ -55,7 +55,6 @@ addImmunogen <- function(proteinDF, start=NULL, end=NULL, seq=NULL, name) {
   immunogenVector <- seq(start, end)
   proteinDF[[colName]] <- ifelse(proteinDF$Position %in% immunogenVector, 1, 0)
 
-  print(paste0("Successfully added immunogen '", colName, "' to the protein dataframe."))
   return(proteinDF)
 
 }

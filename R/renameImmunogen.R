@@ -25,7 +25,6 @@ renameImmunogen <- function(proteinDF, oldName, newName) {
     # update column name
     names(proteinDF)[names(proteinDF) == oldName] <- newName
 
-    print(paste0("Successfully updated immunogen name '", oldName, "' to '", newName, "'"))
     return(proteinDF)
   }
 }

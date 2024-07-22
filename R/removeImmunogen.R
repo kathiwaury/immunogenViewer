@@ -22,7 +22,6 @@ removeImmunogen <- function(proteinDF, name) {
     # remove immunogen column from protein dataframe
     proteinDF <- proteinDF[,!(names(proteinDF) %in% name)]
 
-    print(paste0("Successfully removed immunogen '", name, "' from the protein dataframe."))
     return(proteinDF)
   }
 
