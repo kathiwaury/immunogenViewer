@@ -27,11 +27,15 @@ plotProtein <- function(proteinDF) {
     # plot immunogen features, overwrite plot limits to visualize full immunogen sequence
     structurePlot <- plotSecondaryStructure(proteinDF, immunogenRanges)
     accessPlot <- plotAccessibility(proteinDF, immunogenRanges)
-    membranePlot <- plotRegions(proteinDF, immunogenRanges, "Membrane", "navyblue")
-    bindingPlot <- plotRegions(proteinDF, immunogenRanges, "Binding", "forestgreen")
-    disorderPlot <- plotRegions(proteinDF, immunogenRanges, "Disorder", "gold")
-    ptmPlot <- plotSinglePositions(proteinDF, immunogenRanges, "PTM", "maroon")
-    bridgesPlot <- plotSinglePositions(proteinDF, immunogenRanges, "disulfideBridge", "cornsilk4")
+    membranePlot <- plotRegions(proteinDF, immunogenRanges, "Membrane", "navyblue",
+        "Membrane (UniProt)")
+    bindingPlot <- plotRegions(proteinDF, immunogenRanges, "ProteinBinding", "forestgreen",
+        "Protein Binding (PredictProtein)")
+    disorderPlot <- plotRegions(proteinDF, immunogenRanges, "Disorder", "gold",
+        "Disorder (PredictProtein)")
+    ptmPlot <- plotSinglePositions(proteinDF, immunogenRanges, "PTM", "maroon", "PTM (UniProt)")
+    bridgesPlot <- plotSinglePositions(proteinDF, immunogenRanges, "DisulfideBridge", "cornsilk4",
+        "Disulfide Bridge (UniProt)")
 
     # arrange plots below each other
     # print statement necessary to suppress warnings
@@ -43,8 +47,8 @@ plotProtein <- function(proteinDF) {
 checkForImmunogens <- function(proteinDF) {
 
   # feature column names of protein dataframe
-  features <- c("Uniprot", "Position", "Residue", "PTM", "disulfideBridge", "Membrane",
-                "Binding", "Disorder", "secondaryStructure", "solventAccessibility")
+  features <- c("Uniprot", "Position", "Residue", "SecondaryStructure", "SolventAccessibility",
+                "Membrane", "ProteinBinding", "Disorder", "PTM", "DisulfideBridge")
 
   # if no immunogens are present, return NULL
   if (length(setdiff(colnames(proteinDF), features)) == 0) {
@@ -79,16 +83,16 @@ plotSecondaryStructure <- function(proteinDF, immunogenRanges) {
   colors <- c("Helix" = "lightblue", "Strand" = "lightgreen", "Other" = "lightcoral")
 
   # plot rectangles for every block of secondary structure
-  plot <- ggplot(data = proteinDF, aes(fill = secondaryStructure), alpha = 0.05) +
-    geom_rect(data = proteinDF[proteinDF$secondaryStructure %in% names(colors),],
+  plot <- ggplot(data = proteinDF, aes(fill = SecondaryStructure), alpha = 0.05) +
+    geom_rect(data = proteinDF[proteinDF$SecondaryStructure %in% names(colors),],
               aes(xmin = Position, xmax = Position + 1, ymin = 0, ymax = 1,
-                  fill = secondaryStructure, color = secondaryStructure)) +
+                  fill = SecondaryStructure, color = SecondaryStructure)) +
     # drop title of legend
     scale_fill_manual(values = colors, name = NULL) +
     # suppress legend to not display twice
     scale_color_manual(values = colors, guide = FALSE)
 
-  plot <- setPlotAppearance(plot, "Secondary Structure", nrow(proteinDF))
+  plot <- setPlotAppearance(plot, "Secondary Structure (PredictProtein)", nrow(proteinDF))
 
   # if immunogens are present in protein dataframe, visualize in plot
   if (!is.null(immunogenRanges)) {
@@ -108,16 +112,16 @@ plotAccessibility <- function(proteinDF, immunogenRanges) {
   colors <- c("Buried" = "grey", "Exposed" = "aquamarine4")
 
   # plot rectangles for every block of surface accessibility
-  plot <- ggplot(data = proteinDF, aes(fill = solventAccessibility)) +
-    geom_rect(data = proteinDF[proteinDF$solventAccessibility %in% names(colors),],
+  plot <- ggplot(data = proteinDF, aes(fill = SolventAccessibility)) +
+    geom_rect(data = proteinDF[proteinDF$SolventAccessibility %in% names(colors),],
               aes(xmin = Position, xmax = Position + 1, ymin = 0, ymax = 1,
-                  fill = solventAccessibility, color = solventAccessibility)) +
+                  fill = SolventAccessibility, color = SolventAccessibility)) +
     # drop title of legend
     scale_fill_manual(values = colors, name = NULL) +
     # suppress legend to not display twice
     scale_color_manual(values = colors, guide = FALSE)
 
-  plot <- setPlotAppearance(plot, "Solvent Accessibility", nrow(proteinDF))
+  plot <- setPlotAppearance(plot, "Solvent Accessibility (PredictProtein)", nrow(proteinDF))
 
   # if immunogens are present in protein dataframe, visualize in plot
   if (!is.null(immunogenRanges)) {
@@ -131,7 +135,7 @@ plotAccessibility <- function(proteinDF, immunogenRanges) {
 }
 
 
-plotRegions <- function(proteinDF, immunogenRanges, column, color) {
+plotRegions <- function(proteinDF, immunogenRanges, column, color, col_name) {
 
   # if no annotations, do not plot anything
   if (sum(proteinDF[[column]]) == 0) {
@@ -146,7 +150,7 @@ plotRegions <- function(proteinDF, immunogenRanges, column, color) {
                 aes(xmin = Position, xmax = Position + 1, ymin = 0, ymax = 1),
                 fill = color, color = color)
 
-    plot <- setPlotAppearance(plot, column, nrow(proteinDF))
+    plot <- setPlotAppearance(plot, col_name, nrow(proteinDF))
 
     # if immunogens are present in protein dataframe, visualize in plot
     if (!is.null(immunogenRanges)) {
@@ -160,7 +164,7 @@ plotRegions <- function(proteinDF, immunogenRanges, column, color) {
 }
 
 
-plotSinglePositions <- function(proteinDF, immunogenRanges, column, color) {
+plotSinglePositions <- function(proteinDF, immunogenRanges, column, color, col_name) {
 
   # if no annotations, do not plot anything
   if (sum(proteinDF[[column]]) == 0) {
@@ -175,7 +179,7 @@ plotSinglePositions <- function(proteinDF, immunogenRanges, column, color) {
     plot <- ggplot() +
             geom_point(data = locations, aes(x = Location, y = y), colour = color, size = 3)
 
-    plot <- setPlotAppearance(plot, column, nrow(proteinDF))
+    plot <- setPlotAppearance(plot, col_name, nrow(proteinDF))
 
     # if immunogens are present in protein dataframe, visualize in plot
     if (!is.null(immunogenRanges)) {

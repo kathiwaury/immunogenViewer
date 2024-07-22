@@ -34,7 +34,6 @@ getProteinFeatures <- function(uniprot, taxId = 9606) {
 
   # create feature dataframe
   df <- createFeatureDataFrame(uniprot, seq, uniprotDF, predictProteinDF)
-  print(paste0("Successfully created protein dataframe for UniProt ", uniprot, "."))
 
   return(df)
 }
@@ -46,7 +45,7 @@ accessUniprot <- function(uniprot, taxId) {
   up <- UniProt.ws(taxId=taxId)
 
   # retrieve sequence, PTM and disulfide bridge information
-  result <- select(up, keys=uniprot, columns=c("sequence", "ft_disulfid", "ft_mod_res", "ft_lipid", "ft_carbohyd"),
+  result <- select(up, keys=uniprot, columns=c("sequence", "ft_intramem", "ft_transmem", "ft_disulfid", "ft_mod_res", "ft_lipid", "ft_carbohyd"),
     keytype="UniProtKB")
 
   return(result)
@@ -86,19 +85,21 @@ createFeatureDataFrame <- function(uniprot, seq, uniprotDF, predictProteinDF) {
 
   # structure (PredictProtein)
   secStrVector <- createFeatureVector(predictProteinDF, "SECONDARY_STRUCTURE_(REPROF)")
-  proteinDF["secondaryStructure"] <- secStrVector
+  proteinDF["SecondaryStructure"] <- secStrVector
 
   # solvent accessibility (PredictProtein)
   solAccVector <- createFeatureVector(predictProteinDF, "SOLVENT_ACCESSIBILITY_(REPROF)")
-  proteinDF["solventAccessibility"] <- solAccVector
+  proteinDF["SolventAccessibility"] <- solAccVector
 
   # membrane residues  (UniProt)
-  membraneVector <- retrieveMembranePositions(uniprotDF)
+  transmembraneVector <- retrieveMembranePositions(uniprotDF$Transmembrane)
+  intramembraneVector <- retrieveMembranePositions(uniprotDF$Intramembrane)
+  membraneVector <- sort(c(transmembraneVector, intramembraneVector))
   proteinDF <- addPositions(proteinDF, membraneVector, "Membrane")
 
   # binding (PredictProtein)
   bindingVector <- retrieveRegionPositions(predictProteinDF, "PROTEIN_BINDING_(PRONA)") # add DNA and RNA binding as well?
-  proteinDF <- addPositions(proteinDF, bindingVector, "Binding")
+  proteinDF <- addPositions(proteinDF, bindingVector, "ProteinBinding")
 
   # disorder (PredictProtein)
   disorderVector <- retrieveRegionPositions(predictProteinDF, "DISORDERED_REGION_(META-DISORDER)")
@@ -110,7 +111,7 @@ createFeatureDataFrame <- function(uniprot, seq, uniprotDF, predictProteinDF) {
 
   # disulfide bridges (UniProt)
   disulfideBridgeVector <- retrieveDisulfidePositions(uniprotDF$Disulfide.bond)
-  proteinDF <- addPositions(proteinDF, disulfideBridgeVector, "disulfideBridge")
+  proteinDF <- addPositions(proteinDF, disulfideBridgeVector, "DisulfideBridge")
 
   return(proteinDF)
 }
@@ -195,17 +196,32 @@ retrievePTMPositions <- function(df, columns) {
 }
 
 
-retrieveMembranePositions <- function(uniprotDF) {
+retrieveMembranePositions <- function(column) {
 
-  # filter for relevant rows in Uniprot dataframe
-  filters <- c("Transmembrane", "Intramembrane")
-  filteredDF <- uniprotDF[uniprotDF$type %in% filters, ]
+  positions <- numeric()
 
-  # get all positions within membrane region
-  membraneVector <- sort(unlist(mapply(collectRegionPositions, filteredDF$location$start$value,
-      filteredDF$location$end$value, SIMPLIFY = FALSE)))
+  annotations <- unlist(strsplit(column, ";"))
 
-  return(membraneVector)
+  for (annot in annotations) {
+
+    if (grepl("\\.\\.", annot)) {
+
+      range <- unlist(strsplit(annot, "\\.\\.")) # escaping the dot character for correct string splitting
+
+      start <- as.integer(gsub("[^0-9-]", "", range[1]))
+      end <- as.integer(range[2])
+
+      region_positions <- collectRegionPositions(start, end)
+
+      positions <- c(positions, region_positions)
+
+    } else {
+
+      next
+    }
+  }
+
+  return(sort(positions))
 }
 
 

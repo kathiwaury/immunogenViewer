@@ -32,11 +32,16 @@ plotImmunogen <- function(proteinDF, immunogen) {
     # plot immunogen features, overwrite plot limits to visualize full immunogen sequence
     structurePlot <- updatePlotLimits(plotSecondaryStructure(immunogenDF, NULL), immunogenDF)
     accessPlot <- updatePlotLimits(plotAccessibility(immunogenDF, NULL), immunogenDF)
-    membranePlot <- updatePlotLimits(plotRegions(immunogenDF, NULL, "Membrane", "navyblue"), immunogenDF)
-    bindingPlot <- updatePlotLimits(plotRegions(immunogenDF, NULL, "Binding", "forestgreen"), immunogenDF)
-    disorderPlot <- updatePlotLimits(plotRegions(immunogenDF, NULL, "Disorder", "gold"), immunogenDF)
-    ptmPlot <- updatePlotLimits(plotSinglePositions(immunogenDF, NULL, "PTM", "maroon"), immunogenDF)
-    bridgesPlot <- updatePlotLimits(plotSinglePositions(immunogenDF, NULL, "disulfideBridge", "cornsilk4"), immunogenDF)
+    membranePlot <- updatePlotLimits(plotRegions(immunogenDF, NULL, "Membrane", "navyblue",
+        "Membrane (UniProt)"), immunogenDF)
+    bindingPlot <- updatePlotLimits(plotRegions(immunogenDF, NULL, "ProteinBinding", "forestgreen",
+        "Protein Binding (PredictProtein)"), immunogenDF)
+    disorderPlot <- updatePlotLimits(plotRegions(immunogenDF, NULL, "Disorder", "gold",
+        "Disorder (PredictProtein)"), immunogenDF)
+    ptmPlot <- updatePlotLimits(plotSinglePositions(immunogenDF, NULL, "PTM", "maroon",
+        "PTM (UniProt)"), immunogenDF)
+    bridgesPlot <- updatePlotLimits(plotSinglePositions(immunogenDF, NULL, "DisulfideBridge",
+        "cornsilk4", "Disulfide Bridge (UniProt)"), immunogenDF)
 
     # arrange plots below each other
     # print statement necessary to suppress warnings
@@ -51,7 +56,8 @@ updatePlotLimits <- function(immunogenPlot, immunogenDF) {
   # expand_limits necessary to plot full immunogen sequence after setting labels to residues
   suppressMessages({
     immunogenPlot <- immunogenPlot +
-    scale_x_continuous(breaks = min(immunogenDF$Position):max(immunogenDF$Position), labels = immunogenDF$Residue) +
+    scale_x_continuous(breaks = min(immunogenDF$Position):max(immunogenDF$Position),
+                       labels = immunogenDF$Residue) +
     expand_limits(x = c(min(immunogenDF$Position), max(immunogenDF$Position)))
     })
 
