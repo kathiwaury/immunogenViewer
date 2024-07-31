@@ -1,7 +1,7 @@
 Package: immunogenViewer
 Type: Package
 Title: Visualization and evaluation of protein immunogens
-Version: 0.99.3
+Version: 0.99.4
 Authors@R: c(person("Katharina", "Waury", email = "kathiwaury@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-8570-7640")))
 Description: Plots protein properties and visualizes position of peptide immunogens within protein sequence.
     Allows evaluation of immunogens based on structural and functional annotations to infer 
