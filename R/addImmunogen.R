@@ -43,6 +43,9 @@ addImmunogen <- function(proteinDF, start=NULL, end=NULL, seq=NULL, name) {
     # calculate immunogen end position
     end <- start + nchar(seq) - 1
 
+    # check if immunogen length is within range
+    checkImmunogenRange(start, end, proteinLength)
+
   # if start and end position are provided, check validity of range
   } else if (!is.null(start) & !is.null(end)) {
     checkImmunogenRange(start, end, proteinLength)

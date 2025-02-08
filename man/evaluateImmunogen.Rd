@@ -16,8 +16,8 @@ Summary DataFrame providing statistics on immunogen
 }
 \description{
 By calling `evaluateImmunogen()`, the immunogens associated with a Protein DataFrame can be evaluated regarding
-their suitability fir antibody binding in natively folded proteins. By calling the function without specifying
-an immunogen, all immunogens of the current protein will be evaluated. The summary DataFrame contains one row per
+their suitability for antibody binding in natively folded proteins. By calling the function without specifying
+an immunogen, all immunogens of the current protein dataframe will be evaluated. The summary DataFrame contains one row per
 evaluated immunogen.
 }
 \examples{

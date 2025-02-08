@@ -50,6 +50,29 @@ library(immunogenViewer)
 
 To retrieve the features for the protein of interest the correct UniProt ID (also known as accession number) is required. If the UniProt ID is not known yet, one can search the [UniProtKB](https://www.uniprot.org/) using the gene or protein name. Be sure to select the UniProt ID of the correct organism and preferable search within reviewed SwissProt entries instead of unreviewed TrEMBL entries. Our example protein is the human protein TREM2 (UniProt ID: [Q9NZC2](https://www.uniprot.org/uniprotkb/Q9NZC2/entry)). Using `getProteinFeatures()` relevant features from UniProt and PredictProtein are retrieved. Interaction with UniProt is done using the Bioconductor package [UniProt.ws](https://bioconductor.org/packages/release/bioc/html/UniProt.ws.html). To see how the dataframe is structured, we will look at the returned dataframe. 
 
+The following protein features are included:
+
+-   Secondary Structure: Each residue is assigned as helix, sheet or other conformation based on predictions by RePROF. Source:
+    [PredictProtein](https://www.predictprotein.org/)
+
+-   Solvent Accessibility: Each residue is assigned as exposed or buried based on predictions by RePROF. Source:
+    [PredictProtein](https://www.predictprotein.org/)
+
+-   Membrane: Residues that are annotated as [transmembrane](https://www.uniprot.org/help/transmem) or
+    [intramembrane](https://www.uniprot.org/help/intramem). Source: [UniProtKB](https://www.uniprot.org/)
+
+-   Protein Binding: Each residue that is predicted to bind proteins based on predictions by ProNA. Source:
+    [PredictProtein](https://www.predictprotein.org/)
+
+-   Disorder: Each residue that is predicted to be disordered based on predictions by Meta-Disorder. Source: [PredictProtein](https://www.predictprotein.org/)
+
+-   PTM: Residues that are annotated as [modified residues](https://www.uniprot.org/help/mod_res), 
+    [lipidation](https://www.uniprot.org/help/lipid) or [glycosylation](https://www.uniprot.org/help/carbohyd). Source:
+    [UniProtKB](https://www.uniprot.org/) 
+    
+-   Disulfide Bridges: Residues that are annotated as [disulfide bonds](https://www.uniprot.org/help/disulfid). Source: [UniProtKB](https://www.uniprot.org/)
+
+To see how the dataframe is structured, we will look at the returned dataframe.
 
 ```{r get-features}
 protein <- getProteinFeatures("Q9NZC2")
@@ -71,7 +94,6 @@ protein <- addImmunogen(protein, seq = "HGQKPGTHPPSELD", name = "EB07921")
 colnames(protein)
 ```
 
-
 ### Renaming an immunogen
 
 Already added immunogens can be renamed using `renameImmunogen()` if the provided start and end position are correct but the name should be updated. This way a typo can be corrected or a more informative name added instead of re-adding the immunogen. The column name in the protein dataframe is then updated.
@@ -81,7 +103,6 @@ protein <- renameImmunogen(protein, oldName = "ABIN2783734_", newName = "ABIN278
 # check that immunogen name was updated
 colnames(protein)
 ```
-
 
 ### Removing an immunogen
 
@@ -103,7 +124,10 @@ plotProtein(protein)
 
 ## Visualizing a specific immunogen
 
-If interested in one specific immunogen, one can visualize the relevant part of the protein sequence. In this plot the amino acid sequence of the immunogen is shown along the x axis while the same features as in the protein plot are included. 
+If interested in one specific immunogen, one can visualize the relevant
+part of the protein sequence. In this plot the amino acid sequence of
+the immunogen is shown along the x axis while the same features as in
+the protein plot are included.
 
 ```{r visualize_immunogen, fig.fullwidth=TRUE, fig.width=10, fig.height=10, out.width = "100%"}
 plotImmunogen(protein, "ABIN2783734")
@@ -111,7 +135,30 @@ plotImmunogen(protein, "ABIN2783734")
 
 ## Evaluating the immunogens
 
-Apart from visualizing specific immunogens, it is also possible to summarize the protein features within a specific immunogen. This can either be done for an immunogen of interest or for all immunogens added to a protein dataframe at once. The output is a summary dataframe that can be sorted by the feature columns. By sorting the most suitable immunogen, e.g., with the highest fraction of exposed residues, can be selected.
+Apart from visualizing specific immunogens, it is also possible to summarize the protein features within a specific immunogen. This can either be done for one immunogen of interest or for all immunogens added to a protein dataframe at once. The output is a summary dataframe that can be sorted by the feature columns. By sorting the most suitable immunogen, e.g., with the highest fraction of exposed residues, can be selected. 
+
+The following summary statistics are included:
+
+-   SumPTM: Number of PTM residues within the immunogen.
+
+-   SumDisulfideBridges: Number of disulfide bond residues within the immunogen.
+
+-   ProportionMembrane: Proportion of immunogen residues that are annotated as membrane residues.
+
+-   ProportionDisorder: Proportion of immunogen residues that are predicted as disordered.
+
+-   ProportionBinding: Proportion of immunogen residues that are predicted to bind proteins.
+
+-   ProportionsHelix: Proportion of immunogen residues that are predicted to form alpha helices.
+
+-   ProportionsSheet: Proportion of immunogen residues that are predicted to form beta sheets.
+
+-   ProportionsCoil: Proportion of immunogen residues that are predicted to form coils.
+
+-   ProportionsBuried: Proportion of immunogen residues that are predicted to be buried.
+
+-   ProportionsExposed: Proportion of immunogen residues that are predicted to be solvent exposed.
+
 
 ```{r evaluate}
 immunogens <- evaluateImmunogen(protein)
@@ -121,17 +168,17 @@ DT::datatable(immunogens, width = "80%", options = list(scrollX = TRUE))
 
 # Important Notes
 
-* The length of an immunogen has to be between 10 and 50 amino acids. 
-* The secondary structure "Other" usually stand for coil structures.
-* For the call to `getProteinFeatures()` the taxonomy ID for the protein's species has to be set. The default is human (ID: 9606). If the protein of interest is from a different species, the correct taxonomy ID must be set as a parameter.
-    
-# References {.unnumbered}
+-   The length of an immunogen has to be between 10 and 50 amino acids.
+-   The secondary structure "Other" usually stand for coil structures.
+-   For the call to `getProteinFeatures()` the taxonomy ID for the
+    protein's species has to be set. The default is human (ID: 9606). If
+    the protein of interest is from a different species, the correct
+    taxonomy ID must be set as a parameter.
 
+# References {.unnumbered}
 
 # Session info
 
 ```{r sessioninfo}
 sessionInfo()
 ```
-
-
