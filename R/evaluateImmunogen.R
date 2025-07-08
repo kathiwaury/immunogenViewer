@@ -21,8 +21,10 @@
 evaluateImmunogen <- function(proteinDF, immunogen=NULL) {
 
   # feature column names of protein dataframe
+  # features <- c("Uniprot", "Position", "Residue", "PTM", "DisulfideBridge", "Membrane",
+  #               "ProteinBinding", "Disorder", "SecondaryStructure", "SolventAccessibility")
   features <- c("Uniprot", "Position", "Residue", "PTM", "DisulfideBridge", "Membrane",
-                "ProteinBinding", "Disorder", "SecondaryStructure", "SolventAccessibility")
+                "ProteinBinding", "SecondaryStructure")
 
   fullDF <- data.frame()
 
@@ -71,8 +73,10 @@ evaluateImmunogen <- function(proteinDF, immunogen=NULL) {
 checkIfImmunogenExists <- function(colnamesDF, name) {
 
   # feature column names of protein dataframe
+  # features <- c("Uniprot", "Position", "Residue", "PTM", "DisulfideBridge", "Membrane",
+  #               "ProteinBinding", "Disorder", "SecondaryStructure", "SolventAccessibility")
   features <- c("Uniprot", "Position", "Residue", "PTM", "DisulfideBridge", "Membrane",
-                "ProteinBinding", "Disorder", "SecondaryStructure", "SolventAccessibility")
+                "ProteinBinding", "SecondaryStructure")
 
   # raise error if immunogen names not present in dataframe or same as feature column name
   if (!(name %in% colnamesDF)) {
@@ -135,29 +139,32 @@ createSummaryDataFrame <- function(immunogenDF, immunogen) {
   sumBridge <- sum(immunogenDF[["disulfideBridges"]])
 
   proportionMembrane <- calculateRegionProportions(immunogenDF, "Membrane")
-  proportionDisorder <- calculateRegionProportions(immunogenDF, "Disorder")
+  # proportionDisorder <- calculateRegionProportions(immunogenDF, "Disorder")
   proportionBinding <- calculateRegionProportions(immunogenDF, "ProteinBinding")
 
   # add secondary structure proportions
   proportionsSecondaryStr <- prop.table(table(immunogenDF[["SecondaryStructure"]]))
-  proportionsSecondaryStr <- addMissingClasses(proportionsSecondaryStr, c("Helix", "Sheet", "Other"))
+  # proportionsSecondaryStr <- addMissingClasses(proportionsSecondaryStr, c("Helix", "Sheet", "Other"))
+  proportionsSecondaryStr <- addMissingClasses(proportionsSecondaryStr, c("Helix", "Strand", "Turn", "Unknown"))
 
   # add buried/exposed proportions
-  proportionsSolventAcc <- prop.table(table(immunogenDF[["SolventAccessibility"]]))
-  proportionsSolventAcc <- addMissingClasses(proportionsSolventAcc, c("Buried", "Exposed"))
+  # proportionsSolventAcc <- prop.table(table(immunogenDF[["SolventAccessibility"]]))
+  # proportionsSolventAcc <- addMissingClasses(proportionsSolventAcc, c("Buried", "Exposed"))
 
   # create a summary dataframe
   summaryDF <- data.frame(
     SumPTM = sumPTM,
     SumDisulfideBridges = sumBridge,
     ProportionMembrane = proportionMembrane,
-    ProportionDisorder = proportionDisorder,
+    # ProportionDisorder = proportionDisorder,
     ProportionBinding = proportionBinding,
     ProportionsHelix = proportionsSecondaryStr["Helix"][[1]],
-    ProportionsSheet = proportionsSecondaryStr["Sheet"][[1]],
-    ProportionsCoil = proportionsSecondaryStr["Other"][[1]],
-    ProportionsBuried = proportionsSolventAcc["Buried"][[1]],
-    ProportionsExposed = proportionsSolventAcc["Exposed"][[1]]
+    ProportionsStrand = proportionsSecondaryStr["Strand"][[1]],
+    # ProportionsCoil = proportionsSecondaryStr["Other"][[1]],
+    ProportionsTurn = proportionsSecondaryStr["Turn"][[1]],
+    ProportionsUnknown = proportionsSecondaryStr["Unknown"][[1]]
+    # ProportionsBuried = proportionsSolventAcc["Buried"][[1]],
+    # ProportionsExposed = proportionsSolventAcc["Exposed"][[1]]
     )
 
   # set all rownames to immunogen name

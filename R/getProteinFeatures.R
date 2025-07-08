@@ -26,14 +26,16 @@ getProteinFeatures <- function(uniprot, taxId = 9606) {
   # retrieve results from UniProt
   uniprotDF <- accessUniprot(uniprot, taxId=9606)
 
-  # retrieve results from PredictProtein
-  predictProteinDF <- accessPredictProtein(uniprot)
+  # PredictProtein currently unavailable
+  # # retrieve results from PredictProtein
+  # predictProteinDF <- accessPredictProtein(uniprot)
 
   # retrieve protein sequence
   seq <- uniprotDF$Sequence
 
   # create feature dataframe
-  df <- createFeatureDataFrame(uniprot, seq, uniprotDF, predictProteinDF)
+  # df <- createFeatureDataFrame(uniprot, seq, uniprotDF, predictProteinDF)
+  df <- createFeatureDataFrameUniprotOnly(uniprot, seq, uniprotDF)
 
   return(df)
 }
@@ -45,35 +47,82 @@ accessUniprot <- function(uniprot, taxId) {
   up <- UniProt.ws(taxId=taxId)
 
   # retrieve sequence, PTM and disulfide bridge information
-  result <- select(up, keys=uniprot, columns=c("sequence", "ft_intramem", "ft_transmem", "ft_disulfid", "ft_mod_res", "ft_lipid", "ft_carbohyd"),
-    keytype="UniProtKB")
+  # result <- select(up, keys=uniprot, columns=c("sequence", "ft_intramem", "ft_transmem", "ft_disulfid", "ft_mod_res", "ft_lipid", "ft_carbohyd"),
+  #   keytype="UniProtKB")
+  result <- select(up, keys=uniprot, columns=c("sequence", "ft_helix", "ft_strand", "ft_turn", "ft_binding", "ft_intramem", "ft_transmem", "ft_disulfid", "ft_mod_res", "ft_lipid", "ft_carbohyd"),
+     keytype="UniProtKB")
+
 
   return(result)
 }
 
 
-accessPredictProtein <- function(uniprot) {
+# accessPredictProtein <- function(uniprot) {
+#
+#   # create protein-specific URL
+#   url <- paste0("https://api.predictprotein.org/v1/results/", uniprot)
+#
+#   # make GET request
+#   response <- httr::GET(url = url)
+#
+#   # check if the request was successful
+#   if (response$status_code == 200) {
+#
+#     # parse JSON response
+#     result <- jsonlite::fromJSON(httr::content(response, "text", encoding="UTF-8"))
+#     return(result$features)
+#
+#   } else {
+#     stop(c("Error fetching data from PredictProtein for ", uniprot))
+#   }
+# }
 
-  # create protein-specific URL
-  url <- paste0("https://api.predictprotein.org/v1/results/", uniprot)
 
-  # make GET request
-  response <- httr::GET(url = url)
+# createFeatureDataFrame <- function(uniprot, seq, uniprotDF, predictProteinDF) {
+#
+#   # create vectors of positions and residues
+#   uniprotVector <- rep(uniprot, nchar(seq))
+#   numVector <- seq(1, nchar(seq))
+#   resVector <- strsplit(seq, NULL)[[1]]
+#
+#   # create a dataframe with columns for positions and residues
+#   proteinDF <- data.frame(Uniprot = uniprotVector, Position = numVector, Residue = resVector)
+#
+#   # structure (PredictProtein)
+#   secStrVector <- createFeatureVector(predictProteinDF, "SECONDARY_STRUCTURE_(REPROF)")
+#   proteinDF["SecondaryStructure"] <- secStrVector
+#
+#   # solvent accessibility (PredictProtein)
+#   solAccVector <- createFeatureVector(predictProteinDF, "SOLVENT_ACCESSIBILITY_(REPROF)")
+#   proteinDF["SolventAccessibility"] <- solAccVector
+#
+#   # membrane residues (UniProt)
+#   transmembraneVector <- retrieveMembranePositions(uniprotDF$Transmembrane)
+#   intramembraneVector <- retrieveMembranePositions(uniprotDF$Intramembrane)
+#   membraneVector <- sort(c(transmembraneVector, intramembraneVector))
+#   proteinDF <- addPositions(proteinDF, membraneVector, "Membrane")
+#
+#   # binding (PredictProtein)
+#   bindingVector <- retrieveRegionPositions(predictProteinDF, "PROTEIN_BINDING_(PRONA)") # add DNA and RNA binding as well?
+#   proteinDF <- addPositions(proteinDF, bindingVector, "ProteinBinding")
+#
+#   # disorder (PredictProtein)
+#   disorderVector <- retrieveRegionPositions(predictProteinDF, "DISORDERED_REGION_(META-DISORDER)")
+#   proteinDF <- addPositions(proteinDF, disorderVector, "Disorder")
+#
+#   # PTMs (UniProt)
+#   PTMVector <- retrievePTMPositions(uniprotDF, c("Modified.residue", "Lipidation", "Glycosylation"))
+#   proteinDF <- addPositions(proteinDF, PTMVector, "PTM")
+#
+#   # disulfide bridges (UniProt)
+#   disulfideBridgeVector <- retrieveDisulfidePositions(uniprotDF$Disulfide.bond)
+#   proteinDF <- addPositions(proteinDF, disulfideBridgeVector, "DisulfideBridge")
+#
+#   return(proteinDF)
+# }
 
-  # check if the request was successful
-  if (response$status_code == 200) {
 
-    # parse JSON response
-    result <- jsonlite::fromJSON(httr::content(response, "text", encoding="UTF-8"))
-    return(result$features)
-
-  } else {
-    stop(c("Error fetching data from PredictProtein for ", uniprot))
-  }
-}
-
-
-createFeatureDataFrame <- function(uniprot, seq, uniprotDF, predictProteinDF) {
+createFeatureDataFrameUniprotOnly <- function(uniprot, seq, uniprotDF) {
 
   # create vectors of positions and residues
   uniprotVector <- rep(uniprot, nchar(seq))
@@ -83,27 +132,29 @@ createFeatureDataFrame <- function(uniprot, seq, uniprotDF, predictProteinDF) {
   # create a dataframe with columns for positions and residues
   proteinDF <- data.frame(Uniprot = uniprotVector, Position = numVector, Residue = resVector)
 
-  # structure (PredictProtein)
-  secStrVector <- createFeatureVector(predictProteinDF, "SECONDARY_STRUCTURE_(REPROF)")
+  # structure (UniProt)
+  helixVector <- retrieveMembranePositions(uniprotDF$Helix)
+  strandVector <- retrieveMembranePositions(uniprotDF$Beta.strand)
+  turnVector <- retrieveMembranePositions(uniprotDF$Turn)
+
+  # initialize secondary structure vector
+  secStrVector <- rep("Unknown", nchar(seq))
+
+  # assign secondary structure regions
+  secStrVector[helixVector] <- "Helix"
+  secStrVector[strandVector] <- "Strand"
+  secStrVector[turnVector] <- "Turn"
   proteinDF["SecondaryStructure"] <- secStrVector
 
-  # solvent accessibility (PredictProtein)
-  solAccVector <- createFeatureVector(predictProteinDF, "SOLVENT_ACCESSIBILITY_(REPROF)")
-  proteinDF["SolventAccessibility"] <- solAccVector
+  # protein binding (UniProt)
+  bindingVector <- retrieveMembranePositions(uniprotDF$Binding.site)
+  proteinDF <- addPositions(proteinDF, bindingVector, "ProteinBinding")
 
-  # membrane residues  (UniProt)
+  # membrane residues (UniProt)
   transmembraneVector <- retrieveMembranePositions(uniprotDF$Transmembrane)
   intramembraneVector <- retrieveMembranePositions(uniprotDF$Intramembrane)
   membraneVector <- sort(c(transmembraneVector, intramembraneVector))
   proteinDF <- addPositions(proteinDF, membraneVector, "Membrane")
-
-  # binding (PredictProtein)
-  bindingVector <- retrieveRegionPositions(predictProteinDF, "PROTEIN_BINDING_(PRONA)") # add DNA and RNA binding as well?
-  proteinDF <- addPositions(proteinDF, bindingVector, "ProteinBinding")
-
-  # disorder (PredictProtein)
-  disorderVector <- retrieveRegionPositions(predictProteinDF, "DISORDERED_REGION_(META-DISORDER)")
-  proteinDF <- addPositions(proteinDF, disorderVector, "Disorder")
 
   # PTMs (UniProt)
   PTMVector <- retrievePTMPositions(uniprotDF, c("Modified.residue", "Lipidation", "Glycosylation"))
@@ -115,7 +166,6 @@ createFeatureDataFrame <- function(uniprot, seq, uniprotDF, predictProteinDF) {
 
   return(proteinDF)
 }
-
 
 addPositions <- function(proteinDF, featureVector, columnName) {
 

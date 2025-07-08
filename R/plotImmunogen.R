@@ -31,13 +31,13 @@ plotImmunogen <- function(proteinDF, immunogen) {
   suppressWarnings({
     # plot immunogen features, overwrite plot limits to visualize full immunogen sequence
     structurePlot <- updatePlotLimits(plotSecondaryStructure(immunogenDF, NULL), immunogenDF)
-    accessPlot <- updatePlotLimits(plotAccessibility(immunogenDF, NULL), immunogenDF)
+    # accessPlot <- updatePlotLimits(plotAccessibility(immunogenDF, NULL), immunogenDF)
     membranePlot <- updatePlotLimits(plotRegions(immunogenDF, NULL, "Membrane", "navyblue",
         "Membrane (UniProt)"), immunogenDF)
     bindingPlot <- updatePlotLimits(plotRegions(immunogenDF, NULL, "ProteinBinding", "forestgreen",
         "Protein Binding (PredictProtein)"), immunogenDF)
-    disorderPlot <- updatePlotLimits(plotRegions(immunogenDF, NULL, "Disorder", "gold",
-        "Disorder (PredictProtein)"), immunogenDF)
+    # disorderPlot <- updatePlotLimits(plotRegions(immunogenDF, NULL, "Disorder", "gold",
+    #     "Disorder (PredictProtein)"), immunogenDF)
     ptmPlot <- updatePlotLimits(plotSinglePositions(immunogenDF, NULL, "PTM", "maroon",
         "PTM (UniProt)"), immunogenDF)
     bridgesPlot <- updatePlotLimits(plotSinglePositions(immunogenDF, NULL, "DisulfideBridge",
@@ -45,7 +45,8 @@ plotImmunogen <- function(proteinDF, immunogen) {
 
     # arrange plots below each other
     # print statement necessary to suppress warnings
-    print(structurePlot / accessPlot  / membranePlot / bindingPlot / disorderPlot / ptmPlot / bridgesPlot)
+    # print(structurePlot / accessPlot  / membranePlot / bindingPlot / disorderPlot / ptmPlot / bridgesPlot)
+    print(structurePlot / membranePlot / bindingPlot / ptmPlot / bridgesPlot)
   })
 }
 

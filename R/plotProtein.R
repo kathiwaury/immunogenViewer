@@ -26,20 +26,21 @@ plotProtein <- function(proteinDF) {
   suppressWarnings({
     # plot immunogen features, overwrite plot limits to visualize full immunogen sequence
     structurePlot <- plotSecondaryStructure(proteinDF, immunogenRanges)
-    accessPlot <- plotAccessibility(proteinDF, immunogenRanges)
+    # accessPlot <- plotAccessibility(proteinDF, immunogenRanges)
     membranePlot <- plotRegions(proteinDF, immunogenRanges, "Membrane", "navyblue",
         "Membrane (UniProt)")
     bindingPlot <- plotRegions(proteinDF, immunogenRanges, "ProteinBinding", "forestgreen",
         "Protein Binding (PredictProtein)")
-    disorderPlot <- plotRegions(proteinDF, immunogenRanges, "Disorder", "gold",
-        "Disorder (PredictProtein)")
+    # disorderPlot <- plotRegions(proteinDF, immunogenRanges, "Disorder", "gold",
+    #     "Disorder (PredictProtein)")
     ptmPlot <- plotSinglePositions(proteinDF, immunogenRanges, "PTM", "maroon", "PTM (UniProt)")
     bridgesPlot <- plotSinglePositions(proteinDF, immunogenRanges, "DisulfideBridge", "cornsilk4",
         "Disulfide Bridge (UniProt)")
 
     # arrange plots below each other
     # print statement necessary to suppress warnings
-    print(structurePlot / accessPlot / membranePlot / bindingPlot / disorderPlot / ptmPlot / bridgesPlot )
+    # print(structurePlot / accessPlot / membranePlot / bindingPlot / disorderPlot / ptmPlot / bridgesPlot )
+    print(structurePlot / membranePlot / bindingPlot / ptmPlot / bridgesPlot )
   })
 }
 
@@ -47,8 +48,10 @@ plotProtein <- function(proteinDF) {
 checkForImmunogens <- function(proteinDF) {
 
   # feature column names of protein dataframe
-  features <- c("Uniprot", "Position", "Residue", "SecondaryStructure", "SolventAccessibility",
-                "Membrane", "ProteinBinding", "Disorder", "PTM", "DisulfideBridge")
+  # features <- c("Uniprot", "Position", "Residue", "SecondaryStructure", "SolventAccessibility",
+  #               "Membrane", "ProteinBinding", "Disorder", "PTM", "DisulfideBridge")
+  features <- c("Uniprot", "Position", "Residue", "SecondaryStructure",
+                "Membrane", "ProteinBinding", "PTM", "DisulfideBridge")
 
   # if no immunogens are present, return NULL
   if (length(setdiff(colnames(proteinDF), features)) == 0) {
@@ -81,6 +84,8 @@ plotSecondaryStructure <- function(proteinDF, immunogenRanges) {
 
   # set color for secondary structure values
   colors <- c("Helix" = "lightblue", "Strand" = "lightgreen", "Other" = "lightcoral")
+  colors <- c("Helix" = "lightblue", "Strand" = "lightgreen", "Turn" = "lightcoral")
+
 
   # plot rectangles for every block of secondary structure
   plot <- ggplot(data = proteinDF, aes(fill = SecondaryStructure), alpha = 0.05) +
